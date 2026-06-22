@@ -1,0 +1,13 @@
+# Keep secrets and local cruft out of the image — .env is injected at run time
+# via --env-file, never copied in.
+.env
+bbagent.local.json
+actions.log
+loop.log
+cron.log
+__pycache__/
+*.pyc
+.venv/
+venv/
+.git/
+*.csv
