@@ -249,6 +249,28 @@ def _selftest():
             {"type": "add_drop", "add_player_id": 30, "drop_player_id": 2,
              "reasoning": "mcp selftest"})),
     ]
+    # email_report: stub the SMTP send and check it renders the deterministic
+    # template with the agent's distinguishing "Run by:" line.
+    sent = {}
+    orig_send = core.send_email
+    core.send_email = lambda subj, body, html=None: sent.update(
+        subject=subj, body=body, html=html) or True
+    try:
+        report = {
+            "my_label": "My Team", "run_by": "Claude Code agent",
+            "executed": False, "results": False, "starters_value": 1230,
+            "il_returns": [{"name": "SS Healed", "status": "ACTIVE"}],
+            "lineup_moves": [], "waivers": [], "trade_proposals": [],
+            "declined_trades": [], "sources": {}, "team_labels": {}}
+        core.send_email("bbagent plan — My Team",
+                        core.format_plan_email(report),
+                        html=core.format_plan_email_html(report))
+    finally:
+        core.send_email = orig_send
+    assert "Run by: Claude Code agent" in sent.get("body", ""), sent
+    print(f"  {'email_report':<20} -> "
+          f"{json.dumps({'sent': True, 'run_by': 'Claude Code agent'})}")
+
     for name, fn in checks:
         out = _safe(fn)
         assert "error" not in out, (name, out)
