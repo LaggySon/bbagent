@@ -1,0 +1,15 @@
+# secrets / local config (bbagent.config.json is NON-secret and IS committed)
+bbagent.local.json
+.env
+
+# audit trail
+actions.log
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# projection CSVs (yours to supply)
+*.csv

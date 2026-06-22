@@ -1,0 +1,6 @@
+{
+  "_comment": "Optional personal/secret overrides (gitignored). Copy to bbagent.local.json. Use this OR .env for secrets + league identity; non-secret tuning knobs go in bbagent.config.json instead.",
+  "espn_s2": "PASTE_ESPN_S2_COOKIE",
+  "swid": "{PASTE-SWID-WITH-BRACES}",
+  "league_id": "PASTE_LEAGUE_ID"
+}

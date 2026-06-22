@@ -1,0 +1,3 @@
+requests>=2.31
+anthropic>=0.39   ; only needed for `run` (the API LLM agent loop) + LLM trade judgment
+mcp[cli]>=1.2     ; only needed for bbagent_mcp.py (Claude Code integration, no API key)

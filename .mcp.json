@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "bbagent": {
+      "command": "python",
+      "args": ["bbagent_mcp.py"],
+      "env": {
+        "BBAGENT_COMMIT_WRITES": "0"
+      }
+    }
+  }
+}
