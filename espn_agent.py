@@ -236,6 +236,7 @@ def format_plan_email(result):
     L.append(f"bbagent management pass — {result.get('my_label', 'my team')}"
              f"{posted}")
     L.append(f"Generated {_dt.datetime.now().isoformat(timespec='seconds')}")
+    L.append(f"Run by: {result.get('run_by') or 'deterministic engine'}")
     L.append(_sources_line(result))
     L.append(f"Optimal starters value: {result.get('starters_value')}")
     L.append("")
@@ -339,7 +340,8 @@ def format_plan_email_html(result):
              f'</span></div></td></tr>')
     # meta
     P.append(row(f'<span style="color:#6b7280;font-size:12px">'
-                 f'{esc(_sources_line(result))}<br>Optimal starters value: '
+                 f'Run by: {esc(result.get("run_by") or "deterministic engine")}'
+                 f'<br>{esc(_sources_line(result))}<br>Optimal starters value: '
                  f'<b>{esc(str(result.get("starters_value")))}</b></span>'))
 
     rets = result.get("il_returns") or []

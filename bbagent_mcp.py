@@ -135,6 +135,61 @@ if FastMCP is not None:
                                        email=(True if email else None)))
 
     @mcp.tool()
+    def email_report(
+        my_label: str | None = None,
+        executed: bool = False,
+        starters_value: float | None = None,
+        il_returns: list[dict] | None = None,
+        lineup_moves: list[dict] | None = None,
+        waivers: list[dict] | None = None,
+        trade_proposals: list[dict] | None = None,
+        declined_trades: list[dict] | None = None,
+    ) -> dict:
+        """Email the human a report of THIS pass, using the same structured
+        plain-text + HTML template the deterministic `plan` sends. You decide
+        what goes in it (that's your job); this only renders + sends. Call it
+        once at the END of the pass with what you actually did/recommend.
+
+        Field shapes (omit a list to show its 'none' line; same as plan()):
+          il_returns:      [{name, status}]
+          lineup_moves:    [{name, fromLineupSlotId, toLineupSlotId}]
+          waivers:         [{add:{name}, drop:{name}, gain}]
+          trade_proposals: [{with_team_id, i_give:[name], i_get:[name],
+                             my_gain, their_gain, fairness}]
+          declined_trades: [{declined:{with_team_id}, decision, reason}]
+        executed=True only if you actually committed writes this pass; it sets
+        the 'POSTED to ESPN' vs 'recommendation only' badge. Needs SMTP
+        configured (host in bbagent.config.json, SMTP_PASS in .env); returns a
+        clear reason if not set up."""
+        def _send():
+            result = {
+                "my_label": my_label or "my team",
+                "run_by": "Claude Code agent",   # the one line that differs from
+                                                 # the deterministic email
+                "executed": executed,
+                "results": executed,           # drives the 'simulated' badge
+                "starters_value": starters_value,
+                "il_returns": il_returns or [],
+                "lineup_moves": lineup_moves or [],
+                "waivers": waivers or [],
+                "trade_proposals": trade_proposals or [],
+                "declined_trades": declined_trades or [],
+                # Claude doesn't compute the valuation blend; let the formatter
+                # fall back to its "ESPN projections only" line rather than lie.
+                "sources": {},
+                "team_labels": {},
+            }
+            verb = "executed" if executed else "plan"
+            outcome = core.send_email(
+                f"bbagent {verb} — {result['my_label']}",
+                core.format_plan_email(result),
+                html=core.format_plan_email_html(result))
+            sent = outcome is True
+            core.audit("email", {"to": core.EMAIL_TO}, str(outcome))
+            return {"sent": sent, "detail": "sent" if sent else str(outcome)}
+        return _safe(_send)
+
+    @mcp.tool()
     def execute(action: dict) -> dict:
         """Commit one action (gated: DRY-RUN until writes are enabled and the
         payload is verified). Always include a one-line 'reasoning'. action.type:
